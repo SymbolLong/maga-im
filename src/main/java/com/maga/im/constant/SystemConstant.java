@@ -11,6 +11,12 @@ public class SystemConstant {
     public static String APP_KEY = "4c5646f7c3f02bc51f34a4cb";
     public static String MASTER_SECRET = "d4cabcf35ab78a0461bfc417";
 
+    public static String IM_ADMIN = "superAdmin";
+
+    public static String IM_SINGLE = "single";
+    public static String IM_GROUP = "group";
+    public static String IM_CHAT_ROOM = "chatroom";
+
     public static String OPT_SUCCESS = "操作成功";
     public static String QUERY_SUCCESS = "查询成功";
     public static String OPT_FAIL = "操作失败, 请稍后再试";
@@ -18,4 +24,6 @@ public class SystemConstant {
     public static String SYSTEM_EXCEPTION = "系统异常, 请联系管理员";
 
     public static String PARAM_ERROR = "参数有误, 请查看api";
+    public static String USERS_SPLIT = "|";
+
 }

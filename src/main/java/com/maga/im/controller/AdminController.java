@@ -2,7 +2,6 @@ package com.maga.im.controller;
 
 import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
-import cn.jiguang.common.resp.ResponseWrapper;
 import cn.jmessage.api.JMessageClient;
 import cn.jmessage.api.user.UserListResult;
 import com.maga.im.constant.SystemConstant;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * @author zhangsl 2018/9/26 下午5:48
  */
 @RestController
-@RequestMapping("/im/admin")
+@RequestMapping("/admin")
 public class AdminController {
 
     @Autowired
@@ -42,41 +41,11 @@ public class AdminController {
 
     @GetMapping
     @RequestMapping("/list")
-    @ApiOperation(value = "分页参数 page size ")
+    @ApiOperation(value = "管理员列表：分页参数 page size ")
     public ApiResult getAdminList(@RequestParam int page, @RequestParam int size) {
         try {
             UserListResult userListResult = jMessageClient.getAdminListByAppkey((page - 1) * size, size);
             return ApiResultBuilder.success(SystemConstant.QUERY_SUCCESS, userListResult);
-        } catch (APIConnectionException e) {
-            e.printStackTrace();
-        } catch (APIRequestException e) {
-            e.printStackTrace();
-        }
-        return ApiResultBuilder.failure(SystemConstant.SYSTEM_EXCEPTION);
-    }
-
-    @GetMapping
-    @RequestMapping("/users")
-    @ApiOperation(value = "分页参数 page size ")
-    public ApiResult getUsers(int page, int size) {
-        try {
-            UserListResult userListResult = jMessageClient.getUserList((page - 1) * size, size);
-            return ApiResultBuilder.success(SystemConstant.QUERY_SUCCESS, userListResult);
-        } catch (APIConnectionException e) {
-            e.printStackTrace();
-        } catch (APIRequestException e) {
-            e.printStackTrace();
-        }
-        return ApiResultBuilder.failure(SystemConstant.SYSTEM_EXCEPTION);
-    }
-
-    @PutMapping
-    @RequestMapping("/toggle/user")
-    @ApiOperation(value = "修改用户状态： username, state: true|false ")
-    public ApiResult toggleUser(String username, boolean state) {
-        try {
-            ResponseWrapper responseWrapper = jMessageClient.forbidUser(username, true);
-            return ApiResultBuilder.success(SystemConstant.QUERY_SUCCESS, responseWrapper);
         } catch (APIConnectionException e) {
             e.printStackTrace();
         } catch (APIRequestException e) {

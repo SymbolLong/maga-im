@@ -7,6 +7,7 @@ import cn.jmessage.api.JMessageClient;
 import cn.jmessage.api.common.model.NoDisturbPayload;
 import cn.jmessage.api.common.model.RegisterInfo;
 import cn.jmessage.api.user.UserInfoResult;
+import cn.jmessage.api.user.UserListResult;
 import cn.jmessage.api.user.UserStateListResult;
 import cn.jmessage.api.user.UserStateResult;
 import com.maga.im.constant.SystemConstant;
@@ -18,10 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * 用户API
+ *
  * @author zhangsl
  */
 @RestController
-@RequestMapping("/im/user")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -107,7 +110,7 @@ public class UserController {
     @ApiOperation(value = "获取用户列表在线状态：usernames 例如：username1|username2")
     public ApiResult getUserStates(String usernames) {
         try {
-            String[] split = usernames.split("|");
+            String[] split = usernames.split(SystemConstant.USERS_SPLIT);
             UserStateListResult[] userStateListResults = jMessageClient.getUsersState(split);
             return ApiResultBuilder.success(SystemConstant.QUERY_SUCCESS, userStateListResults);
         } catch (APIConnectionException e) {
@@ -153,7 +156,7 @@ public class UserController {
     @ApiOperation(value = "批量删除用户：usernames 例如：username1|username2")
     public ApiResult deleteUsers(String usernames) {
         try {
-            String[] split = usernames.split("|");
+            String[] split = usernames.split(SystemConstant.USERS_SPLIT);
             for (String username : split) {
                 jMessageClient.deleteUser(username);
             }
@@ -166,13 +169,42 @@ public class UserController {
         return ApiResultBuilder.failure(SystemConstant.SYSTEM_EXCEPTION);
     }
 
+    @GetMapping
+    @RequestMapping("/users")
+    @ApiOperation(value = "分页参数 page size ")
+    public ApiResult getUsers(int page, int size) {
+        try {
+            UserListResult userListResult = jMessageClient.getUserList((page - 1) * size, size);
+            return ApiResultBuilder.success(SystemConstant.QUERY_SUCCESS, userListResult);
+        } catch (APIConnectionException e) {
+            e.printStackTrace();
+        } catch (APIRequestException e) {
+            e.printStackTrace();
+        }
+        return ApiResultBuilder.failure(SystemConstant.SYSTEM_EXCEPTION);
+    }
+
+    @PutMapping
+    @RequestMapping("/toggle/user")
+    @ApiOperation(value = "修改用户状态： username, state: true|false ")
+    public ApiResult toggleUser(String username, boolean state) {
+        try {
+            ResponseWrapper responseWrapper = jMessageClient.forbidUser(username, true);
+            return ApiResultBuilder.success(SystemConstant.QUERY_SUCCESS, responseWrapper);
+        } catch (APIConnectionException e) {
+            e.printStackTrace();
+        } catch (APIRequestException e) {
+            e.printStackTrace();
+        }
+        return ApiResultBuilder.failure(SystemConstant.SYSTEM_EXCEPTION);
+    }
 
     @PutMapping
     @RequestMapping("/addBlackList")
     @ApiOperation(value = "添加黑名单：username , usernames 例如：username1|username2 ")
     public ApiResult addBlackList(String username, String usernames) {
         try {
-            String[] split = usernames.split("|");
+            String[] split = usernames.split(SystemConstant.USERS_SPLIT);
             ResponseWrapper responseWrapper = jMessageClient.addBlackList(username, split);
             return ApiResultBuilder.success(SystemConstant.OPT_SUCCESS, responseWrapper);
         } catch (APIConnectionException e) {
@@ -188,7 +220,7 @@ public class UserController {
     @ApiOperation(value = "移除黑名单：username , usernames 例如：username1|username2 ")
     public ApiResult removeBlackList(String username, String usernames) {
         try {
-            String[] split = usernames.split("|");
+            String[] split = usernames.split(SystemConstant.USERS_SPLIT);
             ResponseWrapper responseWrapper = jMessageClient.removeBlacklist(username, split);
             return ApiResultBuilder.success(SystemConstant.OPT_SUCCESS, responseWrapper);
         } catch (APIConnectionException e) {
@@ -220,8 +252,8 @@ public class UserController {
     @ApiOperation(value = "用户免打扰设置：username, addUsernames 例如：username1|username2, removeUsernames 例如：username1|username2")
     public ApiResult setSingleDisturb(String username, String addUsernames, String removeUsernames) {
         try {
-            String[] add = addUsernames.split("|");
-            String[] remove = removeUsernames.split("|");
+            String[] add = addUsernames.split(SystemConstant.USERS_SPLIT);
+            String[] remove = removeUsernames.split(SystemConstant.USERS_SPLIT);
             NoDisturbPayload.Builder builder = new NoDisturbPayload.Builder();
             builder.setAddSingleUsers(add);
             builder.setRemoveSingleUsers(remove);
@@ -240,8 +272,8 @@ public class UserController {
     @ApiOperation(value = "群聊免打扰设置：username, addGroupIds 例如：id1|id2, removeGroupIds 例如：id1|id2")
     public ApiResult setGroupDisturb(String username, String addGroupIds, String removeGroupIds) {
         try {
-            String[] addArray = addGroupIds.split("|");
-            String[] removeArray = removeGroupIds.split("|");
+            String[] addArray = addGroupIds.split(SystemConstant.USERS_SPLIT);
+            String[] removeArray = removeGroupIds.split(SystemConstant.USERS_SPLIT);
             Long[] add = new Long[addArray.length];
             for (int i = 0; i < addArray.length; i++) {
                 add[i] = Long.parseLong(addArray[i]);
